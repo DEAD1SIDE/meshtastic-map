@@ -12,7 +12,9 @@ services:
     command: /app/docker/mqtt.sh
     environment:
       DATABASE_URL: "mysql://root:password@database:3306/meshtastic-map?connection_limit=100"
-      MQTT_OPTS: "" # add any custom mqtt.js options here
+      MQTT_OPTS: "--mqtt-broker-url 65.109.32.218:1883 --mqtt-username mesh --mqtt-password tastic --mqtt-topic msh/# "
+    networks:
+      - mesh-map
 
   # runs the web map ui
   meshtastic-map:
@@ -29,6 +31,9 @@ services:
     environment:
       DATABASE_URL: "mysql://root:password@database:3306/meshtastic-map?connection_limit=100"
       MAP_OPTS: "" # add any custom index.js options here
+    networks:
+      - mesh-map
+      - rproxy-manager_default
 
   # runs the database to store everything from mqtt
   database:
@@ -47,6 +52,15 @@ services:
       timeout: 5s
       retries: 6
       start_interval: 5s
+    networks:
+      - mesh-map
 
 volumes:
   database_data:
+
+networks:
+  rproxy-manager_default:
+    external: true
+    name: rproxy-manager_default
+  mesh-map:
+    name: mesh-map
